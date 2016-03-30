@@ -5,7 +5,7 @@ import pickle
 
 def datetime2timestamp(dt):
   return (dt - datetime.datetime(1970, 1, 1)).total_seconds()
-  
+
 def sampleIndexAtTime(sampleFreq, startTime, timestamp):
   return (timestamp - startTime) * sampleFreq
 
@@ -13,27 +13,24 @@ def startTimestamp(edf, offset):
   return datetime2timestamp(edf.getStartdatetime()) - offset
 
 def combine_edf(filelist, channels, offsets=None):
-  
+
   nSubjects = len(filelist)
   nChannels = len(channels)
-  
+
   if (offsets == None):
     offsets = [ 0 for i in range(nSubjects) ]
 
-  # Load all EDF files in memory
+  # Load all EDF files in memory.
   edf = []
   for i in range(nSubjects):
     edf.append(pyedflib.EdfReader(filelist[i]))
 
-  # Extract common time boundaries
+  # Extract common time boundaries.
   maxStartTime = 0
-  #minEndTime   = float("inf")
   for i in range(nSubjects):
     startTime = startTimestamp(edf[i], offsets[i])
-    #endTime   = startTime + edf[i].getFileDuration()
     maxStartTime = max(maxStartTime, startTime)
-    #minEndTime   = min(minEndTime,   endTime)
-    
+
   allData = []
   allSampleFreqs = []
   for k in range(nChannels):
@@ -42,7 +39,7 @@ def combine_edf(filelist, channels, offsets=None):
     channelIdx = edf[0].getSignalLabels().index(channel)
     sampleFreq = edf[0].getSampleFrequency(channelIdx)
 
-    # Determine where to start in each file
+    # Determine where to start in each file.
     startIdx = []
     signals = []
     nSamples = float("inf")
@@ -50,15 +47,16 @@ def combine_edf(filelist, channels, offsets=None):
       startIdx.append( sampleIndexAtTime(sampleFreq, startTimestamp(edf[i], offsets[i]), maxStartTime) )
       signals.append( edf[i].readSignal(channelIdx)[startIdx[i]:] )
       nSamples = min(nSamples, signals[i].shape[0])
-    
-    # Copy data into structure
+
+    # Copy data into structure.
     data = np.zeros((nSamples, nSubjects))
     for i in range(nSubjects):
       data[:,i] = signals[i][:nSamples]
-      
+
+    # Append to return structures.
     allData.append( data )
     allSampleFreqs.append( sampleFreq )
-  
+
   return allData, allSampleFreqs
 
 from matplotlib.pyplot import *
