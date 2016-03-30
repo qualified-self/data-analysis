@@ -68,16 +68,15 @@ def generate_plot(data, sampleFreq, output):
 
 def main():
 
-  import json
-  import argparse
+  import json, argparse
 
   # Parse commandline arguments.
   parser = argparse.ArgumentParser()
-  parser.add_argument("config-file", type=str, help="The configuration file (json)")
-  parser.add_argument("-i", "--input-dir", type=str, help="Path to directory containing the input datafiles specified in the configuration file")
+  parser.add_argument("config_file", type=str, help="The configuration file (json)")
+  parser.add_argument("-i", "--input-dir", type=str, default=".", help="Path to directory containing the input datafiles specified in the configuration file")
   parser.add_argument("-o", "--output-dir", type=str, default=".", help="Path to directory where the output datafiles will be stored")
-  parser.add_argument("-f", "--format", type=str, default="npz", choices=["npy","npz","txt"], help="Output file format")
-  parser.add_argument("-p", "--plot", type=bool, default=False, help="Generate plots (as pickled .plt files)")
+  parser.add_argument("-f", "--format", type=str, default="npz", choices=["npy", "txt"], help="Output file format")
+  parser.add_argument("-p", "--plot", action="store_true", help="Generate plots (as pickled .plt files)")
 
   args = parser.parse_args()
 
@@ -85,6 +84,7 @@ def main():
   print "Reading configuration file"
   jsonFile = open(args.config_file)
   config = json.loads( jsonFile.read() )
+  channels = config["channels"]
 
   # Combine EDFs.
   print "Extracting data"
@@ -93,20 +93,21 @@ def main():
 
   # Generate output files.
   print "Generating files"
-  channels = config["channels"]
   for i in range(len(channels)):
 
+    output_format = args.format
+
     basename = args.output_dir + "/data_{:s}_{:s}".format(config["label"], channels[i])
-    outputFile = basename + "." + config.format
+    outputFile = basename + "." + output_format
 
     # Save to appropriate file/format.
-    if (config.format == "npz" or config.format == "npy"):
+    if (output_format == "npy"):
       np.save(outputFile, data[i])
-    elif (config.format == "txt"):
+    elif (output_format == "txt"):
       np.savetxt(outputFile, data[i])
 
     # Generate plot if needed.
-    if (config.plot):
+    if (args.plot):
       generate_plot(data[i], sampleFreq[i], basename + ".plt")
 
 if __name__ == "__main__":
