@@ -52,7 +52,7 @@ from scipy import *
 from matplotlib.pyplot import *
 
 # Generate plot based on data compiled by cluster_phase() (used in cluster_phase() with option plotFlag)
-def generate_plot(data, sampleRate, meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp, plotFlag=True):
+def generate_plot(data, sampleRate, meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp, plotFlag=True,plotTitle=None):
   fig = figure(1)
   dataLength = data.shape[0]
   nTimeSeries = data.shape[1]
@@ -85,6 +85,9 @@ def generate_plot(data, sampleRate, meanGrpRho, meanIndRho, meanIndRp, grpRho, i
   ylim([0, 1]);
 
   # add text
+  if (plotTitle != None):
+    fig.suptitle(plotTitle)
+
   text(0, -.4, "Mean GRP Rho: {:.3f}  Mean IND Rhos: {:s}".format(meanGrpRho, array_str(meanIndRho,precision=3)))
 
   # save or display plot

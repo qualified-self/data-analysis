@@ -1,4 +1,4 @@
-from cluster_phase import cluster_phase
+import cluster_phase as cp
 import numpy as np
 
 def save_cluster_phase(filename, grpRho, indRp):
@@ -43,13 +43,14 @@ def main():
     inputBasename  = args.input_dir  + "/" + basename
     outputBasename = args.output_dir + "/" + basename + "_cluster_{:d}-{:d}".format(rng[0], rng[1])
 
+    # Run analysis.
+    data, meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp = cp.cluster_phase(inputBasename + "." + args.format, nSubjects, rng[0], rng[1], config["sample_freq"])
+
+    # Draw plot if needed.
     if (args.plot):
       plotFlag = outputBasename + ".plt"
-    else:
-      plotFlag = False
-
-    # Run analysis.
-    data, meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp = cluster_phase(inputBasename + "." + args.format, nSubjects, rng[0], rng[1], config["sample_freq"], plotFlag)
+      title = "Experiment: {:s} Channel: {:s} Rate: {:d} Range: {:d}-{:d}".format(config["label"], channels[i], config["sample_freq"], rng[0], rng[1])
+      cp.generate_plot(data, config["sample_freq"], meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp, plotFlag, title)
 
     # Save results.
     save_cluster_phase(outputBasename + "." + args.format, grpRho, indRp)
