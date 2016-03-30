@@ -2,25 +2,25 @@
 #--------------------------------------------------------------------------
 #   cluster_phase.py
 #
-#   GRPrhoM, INDrhoM, INDrpM, TSrhoGRP, TSrpIND = cluster_phase(TSfilename, TSnumber, TSfsamp, TSlsamp, TSsamplerate, plotflag)
+#   meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp = cluster_phase(filename, nTimeSeries, firstSample, lastSample, sampleRate, plotFlag)
 #
 #   Input:
-#       TSfilename    : data file
-#       TSnumber      : number of time series
-#       TSsamplerate  : sample rate of the time series
-#       TSfsamp       : first data point in time series used
-#       TSlsamp       : last data point in time series used
-#       plotflag      : do plots (0=no, 1=yes)
+#       filename     : data file
+#       nTimeSeries  : number of time series
+#       sampleRate   : sample rate of the time series
+#       firstSample  : first data point in time series used
+#       lastSample   : last data point in time series used
+#       plotFlag     : do plots (True, False, or filenme.plt to save using pickle)
 #
 #   Output:
-#       GRPrhoM        : mean group rho (0 to 1; 1 = perfect sync)
-#       INDrhoM        : mean rho for each TS to group (0 to 1; 1 = perfect sync)
-#       INDrpM         : mean Relative Phase for each TS to group cluster phase
-#       TSrhoGRP        : group rho time-series
-#       TSrpIND         : relative phase time-series for each individual TS to cluster phase
+#       meanGrpRho        : mean group rho (0 to 1; 1 = perfect sync)
+#       meanIndRho        : mean rho for each TS to group (0 to 1; 1 = perfect sync)
+#       meanIndRp         : mean Relative Phase for each TS to group cluster phase
+#       grpRho        : group rho time-series
+#       indRp         : relative phase time-series for each individual TS to cluster phase
 #
 #   Example:
-#       [GRPrhoM INDrhoM INDrpM TSrhoGRP TSrpIND] = ClusterPhase_do('G201EO1.txt', 6, 1, 7200, 120, 1);
+#       [meanGrpRho meanIndRho meanIndRp grpRho indRp] = closter_phase('G201EO1.txt', 6, 1, 7200, 120, True);
 #
 #   ADAPTED TO PYTHON BY (2016):
 #   J. S. Senecal (Concordia University)
@@ -51,111 +51,111 @@ from numpy import *
 from scipy import *
 from matplotlib.pyplot import *
 
-def cluster_phase(TSfilename,TSnumber,TSfsamp,TSlsamp,TSsamplerate,plotflag=False):
+def cluster_phase(filename,nTimeSeries,firstSample,lastSample,sampleRate,plotFlag=False):
 
   filterfreq = 10
 
   # load time-series (TS)
   # **************************************************************************
-  data = loadtxt(TSfilename)
+  data = loadtxt(filename)
 
-  # Builds a subset by taking only rows TSfsamp .. TSlsamp from base dataset
-  ts_data = data[TSfsamp:TSlsamp,0:TSnumber]
+  # Builds a subset by taking only rows firstSample .. lastSample from base dataset
+  ts_data = data[firstSample:lastSample,0:nTimeSeries]
 
   TSlength = ts_data.shape[0]
 
-  delta_t = 1.0/TSsamplerate
+  delta_t = 1.0/sampleRate
   t = arange(0, TSlength) * delta_t
 
   # Downsample, Filter and normalize data
   # **************************************************************************
   # linear detrend data to remove drift (chiar moving slightly during trial
-  for nts in range(0,TSnumber):
+  for nts in range(0,nTimeSeries):
     ts_data[:,nts] =      scipy.signal.detrend(ts_data[:,nts])
 
   # normalize
-  for nts in range(0,TSnumber):
+  for nts in range(0,nTimeSeries):
     ts_data[:,nts] = scipy.stats.mstats.zscore(ts_data[:,nts], ddof=1)
 
   # filter
-  for nts in range(0,TSnumber):
-    weight_b,weight_a = scipy.signal.butter(2, filterfreq/(TSsamplerate/2.0));
+  for nts in range(0,nTimeSeries):
+    weight_b,weight_a = scipy.signal.butter(2, filterfreq/(sampleRate/2.0));
     irlength = max(weight_b.size-1,weight_a.size-1)
     ts_data[:,nts] = scipy.signal.filtfilt(weight_b, weight_a, ts_data[:,nts])
 
   # Compute phase for each TS using Hilbert transform
   # **************************************************************************
-  TSphase = zeros((TSlength-1,TSnumber))
-  for k in range(0,TSnumber):
+  phase = zeros((TSlength-1,nTimeSeries))
+  for k in range(0,nTimeSeries):
     hrp = scipy.signal.hilbert(ts_data[:,k])
     for n in range(0,TSlength-1):
-      TSphase[n,k] = arctan2( real(hrp[n]), imag(hrp[n]));
-    TSphase[:,k]=unwrap(TSphase[:,k]);
+      phase[n,k] = arctan2( real(hrp[n]), imag(hrp[n]));
+    phase[:,k]=unwrap(phase[:,k]);
 
   # Compute mean running (Cluster) phase
   # **************************************************************************
   clusterphase = zeros(TSlength-1)
   for n in range(0,TSlength-1):
     ztot = complex(0,0);
-    for k in range(0,TSnumber):
-        z = exp(1j * TSphase[n,k]);
+    for k in range(0,nTimeSeries):
+        z = exp(1j * phase[n,k]);
         ztot = ztot+z;
-    ztot = ztot/TSnumber;
+    ztot = ztot/nTimeSeries;
     clusterphase[n] = angle(ztot);
   clusterphase = unwrap(clusterphase);
 
   # Compute relative phases between phase of TS and cluster phase
   # **************************************************************************
-  complexTSrpIND = zeros((TSlength-1,TSnumber),dtype=complex);
-  TSrpIND = zeros((TSlength-1,TSnumber))
-  INDrpM = zeros(TSnumber);
-  INDrhoM = zeros(TSnumber);
-  for k in range(0,TSnumber):
+  complexIndRp = zeros((TSlength-1,nTimeSeries),dtype=complex);
+  indRp = zeros((TSlength-1,nTimeSeries))
+  meanIndRp = zeros(nTimeSeries);
+  meanIndRho = zeros(nTimeSeries);
+  for k in range(0,nTimeSeries):
     ztot = complex(0,0);
     for n in range(0,TSlength-1):
-        z = exp(1j * (TSphase[n,k] - clusterphase[n]));
-        complexTSrpIND[n,k] = z;
+        z = exp(1j * (phase[n,k] - clusterphase[n]));
+        complexIndRp[n,k] = z;
         ztot = ztot+z;
-    TSrpIND[:,k] = angle(complexTSrpIND[:,k]) * 360/(2*numpy.pi); # convert radian to degrees
+    indRp[:,k] = angle(complexIndRp[:,k]) * 360/(2*numpy.pi); # convert radian to degrees
     ztot = ztot / (TSlength-1);
-    INDrpM[k] = angle(ztot);
-    INDrhoM[k] = abs(ztot);
-  TSRPM = INDrpM;
-  INDrpM = (INDrpM / (2*numpy.pi)*360); # convert radian to degrees
+    meanIndRp[k] = angle(ztot);
+    meanIndRho[k] = abs(ztot);
+  meanRp = meanIndRp;
+  meanIndRp = (meanIndRp / (2*numpy.pi)*360); # convert radian to degrees
   print(' ');
   print('Mean relative phases of individuals to cluster phase')
-  print(INDrpM);
+  print(meanIndRp);
   print('Averaged degree of synchronization of individuals (Rho = 1-circular variance)')
-  print(INDrhoM);
+  print(meanIndRho);
 
   # Compute cluster amplitude rhotot in rotation frame
   # **************************************************************************
-  TSrhoGRP=zeros(TSlength-1);
+  grpRho=zeros(TSlength-1);
   for n in range(0,TSlength-1):
     ztot = complex(0,0);
-    for k in range(0,TSnumber):
-        z = exp(1j * (TSphase[n,k] - clusterphase[n] - TSRPM[k]));
+    for k in range(0,nTimeSeries):
+        z = exp(1j * (phase[n,k] - clusterphase[n] - meanRp[k]));
         ztot = ztot+z;
-    ztot = ztot / TSnumber;
-    TSrhoGRP[n] = abs(ztot);
-  print TSrhoGRP
+    ztot = ztot / nTimeSeries;
+    grpRho[n] = abs(ztot);
+  print grpRho
 
-  GRPrhoM = mean(TSrhoGRP);
+  meanGrpRho = mean(grpRho);
   print('Averaged degree of synchronization of the group')
-  print(GRPrhoM);
+  print(meanGrpRho);
 
   # Do Plot
   # **************************************************************************
   # plot data for time-series (separeted on graph for display purposes)
   #scrsz = get(0,'ScreenSize');
   #h = figure('Position',[scrsz(3)/3 scrsz(4)/3 scrsz(3)/2 scrsz(4)/2]);
-  if plotflag != False:
+  if plotFlag != False:
 
     fig = figure(1)
 
     subplot(3,1,1);
-    tmpdata = zeros((TSlength,TSnumber));
-    for nts in range(0,TSnumber):
+    tmpdata = zeros((TSlength,nTimeSeries));
+    for nts in range(0,nTimeSeries):
       tmpdata[:,nts] = (ts_data[:,nts] + (nts*4));
     plot(t, tmpdata)
     xlabel('Time');
@@ -165,7 +165,7 @@ def cluster_phase(TSfilename,TSnumber,TSfsamp,TSlsamp,TSsamplerate,plotflag=Fals
 
     # plot individ-cluster relative phase
     subplot(3,1,2);
-    plot(t[0:TSlength-1], TSrpIND);
+    plot(t[0:TSlength-1], indRp);
     xlabel('Time');
     ylabel('IND-Clust Relative Phase');
     xlim([0, max(t)]);
@@ -173,20 +173,20 @@ def cluster_phase(TSfilename,TSnumber,TSfsamp,TSlsamp,TSsamplerate,plotflag=Fals
 
     # plot group-cluster amplitiude (rho) timeseries
     subplot(3,1,3);
-    plot(t[0:TSlength-1], TSrhoGRP)
+    plot(t[0:TSlength-1], grpRho)
     xlabel('Time');
     ylabel('GRP-Clust Amplitude');
     xlim([0, max(t)]);
     ylim([0, 1]);
 
-    text(0, -.4, "Mean GRP Rho: {:.3f}  Mean IND Rhos: {:s}".format(GRPrhoM, array_str(INDrhoM,precision=3)))
+    text(0, -.4, "Mean GRP Rho: {:.3f}  Mean IND Rhos: {:s}".format(meanGrpRho, array_str(meanIndRho,precision=3)))
 
-    if plotflag == True:
+    if plotFlag == True:
       fig.show()
     else:
-      pickle.dump(fig, file(plotflag, 'w'))
+      pickle.dump(fig, file(plotFlag, 'w'))
 
-  return GRPrhoM, INDrhoM, INDrpM, TSrhoGRP, TSrpIND
+  return meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp
 
 import json
 
@@ -204,7 +204,7 @@ def main():
     basename = "data_{:s}_{:s}".format(config["label"], channels[i])
     output = basename + "_cluster_{:d}-{:d}.plt".format(rng[0], rng[1])
     nChannels = len(channels)
-    GRPrhoM, INDrhoM, INDrpM, TSrhoGRP, TSrpIND = cluster_phase(basename + ".raw", nSubjects, rng[0], rng[1], config["sample_freq"], False)
+    meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp = cluster_phase(basename + ".raw", nSubjects, rng[0], rng[1], config["sample_freq"], False)
 
 if __name__ == "__main__":
   main()
