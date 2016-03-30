@@ -56,8 +56,7 @@ def generate_plot(data, sampleRate, meanGrpRho, meanIndRho, meanIndRp, grpRho, i
   fig = figure(1)
   dataLength = data.shape[0]
   nTimeSeries = data.shape[1]
-  delta_t = 1.0/sampleRate
-  t = arange(0, dataLength) * delta_t
+  t = arange(0, dataLength) / sampleRate
 
   subplot(3,1,1);
   tmpdata = zeros((dataLength,nTimeSeries));
