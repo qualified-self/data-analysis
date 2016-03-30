@@ -203,23 +203,3 @@ def cluster_phase(dataset,nTimeSeries,firstSample,lastSample,sampleRate,plotFlag
     generate_plot(data, sampleRate, meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp, plotFlag)
 
   return data, meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp
-import json
-
-def main():
-  print "Reading JSON file"
-  jsonfile = sys.argv[1]
-  with open(jsonfile) as f:
-    config = json.loads( f.read() )
-  channels = config["channels"]
-  nSubjects = len(config["edf-files"])
-
-  for i in range(len(channels)):
-    print "Processing channel '{:s}'".format(channels[i])
-    rng = config["range"]
-    basename = "data_{:s}_{:s}".format(config["label"], channels[i])
-    output = basename + "_cluster_{:d}-{:d}.plt".format(rng[0], rng[1])
-    nChannels = len(channels)
-    meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp = cluster_phase(basename + ".raw", nSubjects, rng[0], rng[1], config["sample_freq"], False)
-
-if __name__ == "__main__":
-  main()
