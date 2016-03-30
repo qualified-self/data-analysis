@@ -11,11 +11,14 @@ def sampleIndexAtTime(sampleFreq, startTime, timestamp):
 
 def startTimestamp(edf, offset):
   return datetime2timestamp(edf.getStartdatetime()) - offset
-  
-def combine_edf(filelist, channels, offsets):
+
+def combine_edf(filelist, channels, offsets=None):
   
   nSubjects = len(filelist)
   nChannels = len(channels)
+  
+  if (offsets == None):
+    offsets = [ 0 for i in range(nSubjects) ]
 
   # Load all EDF files in memory
   edf = []
