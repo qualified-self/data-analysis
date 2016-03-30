@@ -94,6 +94,7 @@ def generate_plot(data, sampleRate, meanGrpRho, meanIndRho, meanIndRp, grpRho, i
   else:
     print "Dumping to " + plotFlag
     pickle.dump(fig, file(plotFlag, 'w'))
+  close(fig)
 
 
 # Compiles cluster phase.
