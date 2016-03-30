@@ -66,28 +66,48 @@ def generate_plot(data, sampleFreq, output):
   ax = plot(np.arange(0, nSamples)/sampleFreq, data)
   pickle.dump(ax, file(output, 'w'))
 
-import json
-import sys
-
 def main():
-  print "Reading JSON file"
-  jsonfile = sys.argv[1]
-  with open(jsonfile) as f:
-    config = json.loads( f.read() )  
-  channels = config["channels"]
-  
-  print "Extracting data"
-  data, sampleFreq = combine_edf(config["edf-files"], channels, config["offsets"])
 
+  import json
+  import argparse
+
+  # Parse commandline arguments.
+  parser = argparse.ArgumentParser()
+  parser.add_argument("config-file", type=str, help="The configuration file (json)")
+  parser.add_argument("-i", "--input-dir", type=str, help="Path to directory containing the input datafiles specified in the configuration file")
+  parser.add_argument("-o", "--output-dir", type=str, default=".", help="Path to directory where the output datafiles will be stored")
+  parser.add_argument("-f", "--format", type=str, default="npz", choices=["npy","npz","txt"], help="Output file format")
+  parser.add_argument("-p", "--plot", type=bool, default=False, help="Generate plots (as pickled .plt files)")
+
+  args = parser.parse_args()
+
+  # Read config file.
+  print "Reading configuration file"
+  jsonFile = open(args.config_file)
+  config = json.loads( jsonFile.read() )
+
+  # Combine EDFs.
+  print "Extracting data"
+  edfFiles = [ args.input_dir + "/" + f for f in config["edf-files"] ]
+  data, sampleFreq = combine_edf(edfFiles, channels, config["offsets"])
+
+  # Generate output files.
   print "Generating files"
+  channels = config["channels"]
   for i in range(len(channels)):
-    basename = "data_{:s}_{:s}".format(config["label"], channels[i])
-    generate_plot(data[i], sampleFreq[i], basename + ".plt")
-    np.savetxt(basename + ".raw", data[i])
-    
-  
+
+    basename = args.output_dir + "/data_{:s}_{:s}".format(config["label"], channels[i])
+    outputFile = basename + "." + config.format
+
+    # Save to appropriate file/format.
+    if (config.format == "npz" or config.format == "npy"):
+      np.save(outputFile, data[i])
+    elif (config.format == "txt"):
+      np.savetxt(outputFile, data[i])
+
+    # Generate plot if needed.
+    if (config.plot):
+      generate_plot(data[i], sampleFreq[i], basename + ".plt")
+
 if __name__ == "__main__":
-  main()  
-  
-  
-  
+  main()
