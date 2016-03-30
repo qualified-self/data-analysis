@@ -31,7 +31,7 @@
 # USAGE
 #
 #   data, meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp
-#                = cluster_phase(dataset, nTimeSeries, firstSample, lastSample, sampleRate, plotFlag)
+#                = cluster_phase(dataset, nTimeSeries, firstSample, lastSample, sampleRate, plotFlag, plotTitle)
 #
 #   Input:
 #       dataset      : dataset as either a filename OR directly a numpy array
@@ -40,6 +40,7 @@
 #       firstSample  : first data point in time series used
 #       lastSample   : last data point in time series used
 #       plotFlag     : do plots (True, False, or filenme.plt to save using pickle)
+#       plotTitle    : title of plot (default: None)
 #
 #   Output:
 #       meanGrpRho        : mean group rho (0 to 1; 1 = perfect sync)
