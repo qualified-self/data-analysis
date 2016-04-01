@@ -31,14 +31,14 @@
 # USAGE
 #
 #   data, meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp
-#                = cluster_phase(dataset, nTimeSeries, firstSample, lastSample, sampleRate, plotFlag, plotTitle)
+#                = cluster_phase(dataset,nTimeSeries,sampleRate,firstSample=0,lastSample=None,plotFlag=False)
 #
 #   Input:
 #       dataset      : dataset as either a filename OR directly a numpy array
 #       nTimeSeries  : number of time series
 #       sampleRate   : sample rate of the time series
 #       firstSample  : first data point in time series used
-#       lastSample   : last data point in time series used
+#       lastSample   : last data point in time series used (if None, lastSample is dataset's last sample)
 #       plotFlag     : do plots (True, False, or filenme.plt to save using pickle)
 #       plotTitle    : title of plot (default: None)
 #
@@ -129,7 +129,7 @@ def generate_plot(data, sampleRate, meanGrpRho, meanIndRho, meanIndRp, grpRho, i
 
 
 # Compiles cluster phase.
-def cluster_phase(dataset,nTimeSeries,firstSample,lastSample,sampleRate,plotFlag=False):
+def cluster_phase(dataset,nTimeSeries,sampleRate,firstSample=0,lastSample=None,plotFlag=False):
 
   filterfreq = 10
 
@@ -144,7 +144,10 @@ def cluster_phase(dataset,nTimeSeries,firstSample,lastSample,sampleRate,plotFlag
     fulldata = dataset
 
   # Builds a subset by taking only rows firstSample .. lastSample from base dataset
-  data = fulldata[firstSample:lastSample,0:nTimeSeries]
+  if (lastSample != None):
+    data = fulldata[firstSample:lastSample,0:nTimeSeries]
+  else:
+    data = fulldata[firstSample:,0:nTimeSeries]
 
   dataLength = data.shape[0]
 
