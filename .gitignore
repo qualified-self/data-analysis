@@ -58,5 +58,18 @@ docs/_build/
 # PyBuilder
 target/
 
-#Ipython Notebook
+# Ipython Notebook
 .ipynb_checkpoints
+
+# btsync
+.sync
+
+# Data
+*.npy
+*.npz
+*.raw
+*.plt
+
+# Images/big files
+*.png
+*.pdf
