@@ -1,19 +1,18 @@
 import cluster_phase as cp
 import numpy as np
 
-def save_cluster_phase(filename, grpRho, indRp):
-  data = np.column_stack((grpRho, indRp))
-  if (filename.endswith("txt")):
-    np.savetxt(filename, data)
-  else:
-    np.save(filename, data)
+def save_cluster_phase(filename, meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp):
+  np.savez(filename, meanGrpRho=meanGrpRho, meanIndRho=meanIndRho, meanIndRp=meanIndRp, grpRho=grpRho, indRp=indRp)
 
 def read_cluster_phase(filename):
-  if (filename.endswith("txt")):
-    data = np.loadtxt(filename)
-  else:
-    data = np.load(filename)
-  return data[:,0], data[:,1:]
+  data = np.load(filename)
+  return data["meanGrpRho"], data["meanIndRho"], data["meanIndRp"], data["grpRho"], data["indRp"]
+
+def seconds_to_sample(seconds, sampleFreq):
+  return int(seconds * sampleFreq)
+
+def sample_to_seconds(sample, sampleFreq):
+  return sample / sampleFreq
 
 def main():
   import json, argparse
@@ -34,26 +33,42 @@ def main():
   config = json.loads( jsonFile.read() )
   channels = config["channels"]
   nChannels = len(channels)
-  nSubjects = len(config["edf-files"])
-  rng = config["range"]
+  nSubjects = config["n-subjects"]
+  sampleFreq = config["sample-freq"]
+  if ("start" in config):
+    start = config["start"]
+  else:
+    start = 0
+  firstSample = seconds_to_sample(start, sampleFreq)
+  if ("end" in config):
+    end = config["end"]
+    lastSample  = seconds_to_sample(end, sampleFreq)
+  else:
+    end = None
+    lastSample = None
 
   for i in range(len(channels)):
     print "Processing channel '{:s}'".format(channels[i])
     basename = "/data_{:s}_{:s}".format(config["label"], channels[i])
     inputBasename  = args.input_dir  + "/" + basename
-    outputBasename = args.output_dir + "/" + basename + "_cluster_{:d}-{:d}".format(rng[0], rng[1])
 
     # Run analysis.
-    data, meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp = cp.cluster_phase(inputBasename + "." + args.format, nSubjects, rng[0], rng[1], config["sample_freq"])
+    data, meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp = cp.cluster_phase(inputBasename + "." + args.format, nSubjects, sampleFreq, firstSample, lastSample)
+
+    if (end == None):
+      lastSample = data.shape[0]-1
+      end = int(sample_to_seconds(lastSample, sampleFreq))
+
+    outputBasename = args.output_dir + "/" + basename + "_cluster_{:d}-{:d}".format(firstSample, lastSample)
 
     # Draw plot if needed.
     if (args.plot):
       plotFlag = outputBasename + ".plt"
-      title = "Experiment: {:s} Channel: {:s} Rate: {:d} Range: {:d}-{:d}".format(config["label"], channels[i], config["sample_freq"], rng[0], rng[1])
-      cp.generate_plot(data, config["sample_freq"], meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp, plotFlag, title)
+      title = "Experiment: {:s} Channel: {:s} Rate: {:d} Range: {:d}-{:d}".format(config["label"], channels[i], sampleFreq, start, end)
+      cp.generate_plot(data, config["sample-freq"], meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp, plotFlag, title)
 
     # Save results.
-    save_cluster_phase(outputBasename + "." + args.format, grpRho, indRp)
+    save_cluster_phase(outputBasename + ".npz", meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp)
 
 if __name__ == "__main__":
   main()
