@@ -122,9 +122,11 @@ def generate_plot(data, sampleRate, meanGrpRho, meanIndRho, meanIndRp, grpRho, i
   # save or display plot
   if plotFlag == True:
     fig.show()
-  else:
+  elif plotFlag.endswith(".plt"):
     print "Dumping to " + plotFlag
     pickle.dump(fig, file(plotFlag, 'w'))
+  else:
+    fig.savefig(plotFlag)
   close(fig)
 
 
