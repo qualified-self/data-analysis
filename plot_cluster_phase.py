@@ -7,11 +7,7 @@ def generate_plot(data, sampleRate, meanGrpRho, meanIndRho, meanIndRp, grpRho, i
   fig = figure(1)
   dataLength = indRp.shape[0]
   nTimeSeries = indRp.shape[1]
-  print data.shape
-  print indRp.shape
   t = np.arange(0, dataLength) / sampleRate
-  print t.shape
-  print grpRho.shape
 
   subplot(3,1,1);
   tmpdata = np.zeros((dataLength,nTimeSeries));
@@ -99,7 +95,7 @@ def main():
   # Parse commandline arguments.
   parser = argparse.ArgumentParser()
   parser.add_argument("config_file", type=str, help="The configuration file (json)")
-  parser.add_argument("channels", type=str, help="The name(s) of the channel separated by commas")
+  parser.add_argument("-c", "--channels", type=str, default=None, help="The name(s) of the channel separated by commas")
   parser.add_argument("-i", "--input-dir", type=str, default=".", help="Path to directory containing the input datafiles")
   parser.add_argument("-o", "--output-dir", type=str, default=".", help="Path to directory where the output datafiles will be stored")
   parser.add_argument("-f", "--format", type=str, default="npy", choices=["npy", "txt"], help="File format (for input)")
@@ -111,7 +107,10 @@ def main():
   print "Reading configuration file"
   jsonFile = open(args.config_file)
   config = json.loads( jsonFile.read() )
-  channels = args.channels.split(",")
+  if (args.channels == None):
+    channels = config["channels"]
+  else:
+    channels = args.channels.split(",")
   nSubjects = config["n-subjects"]
   sampleFreq  = config["sample-freq"]
   markers = config["markers"]
