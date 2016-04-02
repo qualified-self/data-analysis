@@ -1,0 +1,8 @@
+{
+  "label"     : "exp2016-03-31--05",
+  "edf-file"  : "2016-03-31--05/S1S2S3S4-day2-exp3_20160331T183331.bdf",
+  "n-subjects" : 4,
+  "sample-freq" : 1024,
+  "channels"  : [ "ECG", "RESP", "GSR" ],
+  "markers" :   [ 0, 300, 600, 1200 ]
+}
