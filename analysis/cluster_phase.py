@@ -81,7 +81,7 @@ from scipy import *
 from matplotlib.pyplot import *
 
 # Generate plot based on data compiled by cluster_phase() (used in cluster_phase() with option plotFlag)
-def generate_plot(data, sampleRate, meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp, plotFlag=True,plotTitle=None):
+def generate_plot(data, sampleRate, meanGrpRho, meanIndRho, meanIndRp, grpRho, indRp, plotFlag=True, plotTitle=None):
   fig = figure(1)
   dataLength = data.shape[0]
   nTimeSeries = data.shape[1]
