@@ -1,0 +1,150 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{textcomp}
+\usepackage[english]{babel}
+
+\usepackage[%
+        backend=biber,
+        style=chicago-authordate,
+        natbib=true,
+        backref=false,
+        backrefstyle=all+,
+        hyperref=true,
+    ]{biblatex}
+%\usepackage{natbib}
+
+\usepackage{setspace}
+\setstretch{1.5}
+%\setstretch{2}
+
+\usepackage{subfig}
+\usepackage{float}
+
+\usepackage{pstricks}
+
+\usepackage{tabularx}
+\usepackage{makecell}
+
+\usepackage{geometry}
+\usepackage{auto-pst-pdf}
+%\usepackage{graphicx}
+%\usepackage{subfigure}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black,filecolor=black]{hyperref}
+\usepackage{url}
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{amsmath}
+
+\usepackage{lscape}
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=C++,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+\newenvironment{blockquote}{\begin{quotation}\singlespacing}{\end{quotation}}
+
+%\bibliographystyle{apalike} 
+\bibliography{qself}
+
+%opening
+\title{Technical report}
+\author{Sofian Audry}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+\end{abstract}
+
+\section{Measures}
+
+This tech report describes a series of experiments that were conducted in Eidhoven from March 30\textsuperscript{th} to April 1\textsuperscript{st}, 2016
+\citep{Richardson2012-Measuring}
+
+\section{Experiments}
+
+\section{Results}
+
+%\begin{landscape}
+ 
+\begin{figure}[hbtp]
+\centering
+
+\subfloat[Group A -- Experiment \#1 (ECG)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--01-03_ECG_cluster_245760-1658880.png}}
+\qquad
+\subfloat[Group A -- Experiment \#1 (GSR)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--01-03_GSR_cluster_245760-1658880.png}}
+\qquad
+\subfloat[Group A -- Experiment \#1 (RESP)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--01-03_RESP_cluster_245760-1658880.png}}
+
+\subfloat[Group A -- Experiment \#2 (ECG)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--01-03_ECG_cluster_1658880-3072000.png}}
+\qquad
+\subfloat[Group A -- Experiment \#2 (GSR)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--01-03_GSR_cluster_1658880-3072000.png}}
+\qquad
+\subfloat[Group A -- Experiment \#2 (RESP)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--01-03_RESP_cluster_1658880-3072000.png}}
+
+\subfloat[Group A -- Experiment \#3 (ECG)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--01-03_ECG_cluster_3072000-4608000.png}}
+\qquad
+\subfloat[Group A -- Experiment \#3 (GSR)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--01-03_GSR_cluster_3072000-4608000.png}}
+\qquad
+\subfloat[Group A -- Experiment \#3 (RESP)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--01-03_RESP_cluster_3072000-4608000.png}}
+
+\caption{Cluster-phase analysis of the first set of experiments conducted on March 31\textsuperscript{st}, 2016 for electrocardiogram (ECG), galvanic skin response (GSR) and respiration (RESP). Top graph displays raw data; middle graph shows the individual cluster-phases; bottom graph contains the group (average) cluster phase.}
+\label{fig:results}
+\end{figure}
+%\end{landscape}
+
+\begin{figure}[hbtp]
+\centering
+
+\subfloat[Group B -- Experiment \#1 (ECG)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--04_ECG_cluster_0-1798143.png}}
+\qquad
+\subfloat[Group B -- Experiment \#1 (GSR)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--04_GSR_cluster_0-1798143.png}}
+\qquad
+\subfloat[Group B -- Experiment \#1 (RESP)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--04_RESP_cluster_0-1798143.png}}
+
+\subfloat[Group B -- Experiment \#2 (ECG)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--05_ECG_cluster_0-1508351.png}}
+\qquad
+\subfloat[Group B -- Experiment \#2 (GSR)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--05_GSR_cluster_0-1508351.png}}
+\qquad
+\subfloat[Group B -- Experiment \#2 (RESP)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--05_RESP_cluster_0-1508351.png}}
+
+\subfloat[Group B -- Experiment \#3 (ECG)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--01-03_ECG_cluster_3072000-4608000.png}}
+\qquad
+\subfloat[Group B -- Experiment \#3 (GSR)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--01-03_GSR_cluster_3072000-4608000.png}}
+\qquad
+\subfloat[Group B -- Experiment \#3 (RESP)]{\includegraphics[keepaspectratio,width=0.3\textwidth,height=0.3\textheight]{images/data_exp2016-03-31--01-03_RESP_cluster_3072000-4608000.png}}
+
+\caption{Cluster-phase analysis of the second set of experiments conducted on March 31\textsuperscript{st}, 2016 for electrocardiogram (ECG), galvanic skin response (GSR) and respiration (RESP). Top graph displays raw data; middle graph shows the individual cluster-phases; bottom graph contains the group (average) cluster phase.}
+\label{fig:results}
+\end{figure}
+
+
+\printbibliography
+
+\end{document}
